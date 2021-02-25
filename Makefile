@@ -62,7 +62,7 @@ init:
 	mkdir -p ${RELEASE_DIR}
 
 vc-scheduler: init
-	go build -ldflags ${LD_FLAGS} -o=${BIN_DIR}/vc-scheduler ./cmd/scheduler
+	env GOOS=linux GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o=${BIN_DIR}/vc-scheduler ./cmd/scheduler
 
 vc-controller-manager: init
 	go build -ldflags ${LD_FLAGS} -o=${BIN_DIR}/vc-controller-manager ./cmd/controller-manager
@@ -87,7 +87,7 @@ image_bins: init
   	fi;
 
 images: image_bins
-	for name in controller-manager scheduler webhook-manager; do\
+	for name in scheduler; do\
 		cp ${BIN_DIR}/${REL_OSARCH}/vc-$$name ./installer/dockerfile/$$name/;\
 		if [ ${REL_OSARCH} = linux/amd64 ];then\
 			docker build --no-cache -t $(IMAGE_PREFIX)-$$name:$(TAG) ./installer/dockerfile/$$name;\

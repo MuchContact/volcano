@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-web
+  labels:
+    role: myrole
+spec:
+  containers:
+    - name: sleep
+      imagePullPolicy: IfNotPresent
+      image: governmentpaas/curl-ssl
+      command: ["/bin/sleep", "30s"]
+      resources:
+        requests:
+          cpu: "10Mi"
+          memory: "100m"
+---
+# 记录queue job关系
+# 记录job状态
