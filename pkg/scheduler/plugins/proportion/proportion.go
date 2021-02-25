@@ -17,9 +17,8 @@ limitations under the License.
 package proportion
 
 import (
-	"reflect"
-
 	"k8s.io/klog"
+	"reflect"
 
 	"volcano.sh/volcano/pkg/apis/scheduling"
 	"volcano.sh/volcano/pkg/scheduler/api"
@@ -121,6 +120,23 @@ func (pp *proportionPlugin) OnSessionOpen(ssn *framework.Session) {
 
 		if job.PodGroup.Status.Phase == scheduling.PodGroupInqueue {
 			attr.inqueue.Add(GetJobMinResources(job.PodGroup.Spec))
+		}
+	}
+
+	for _, queue := range ssn.Queues{
+		if _, found := pp.queueOpts[queue.UID]; !found {
+			attr := &queueAttr{
+				queueID: queue.UID,
+				name:    queue.Name,
+				weight:  queue.Weight,
+
+				deserved:  api.EmptyResource(),
+				allocated: api.EmptyResource(),
+				request:   api.EmptyResource(),
+				inqueue:   api.EmptyResource(),
+			}
+			pp.queueOpts[queue.UID] = attr
+			klog.V(4).Infof("reset queue <%v> metric when no active jobs exist.", queue.Name)
 		}
 	}
 
