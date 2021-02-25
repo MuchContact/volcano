@@ -37,6 +37,14 @@ var (
 			Help:      "Number of retry counts for one job",
 		}, []string{"job_id"},
 	)
+
+	jobStatus = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Subsystem: VolcanoNamespace,
+			Name:      "job_status",
+			Help:      "status of job",
+		}, []string{"job_name", "queue", "job_namespace", "status"},
+	)
 )
 
 // UpdateJobShare records share for one job
@@ -47,4 +55,12 @@ func UpdateJobShare(jobNs, jobID string, share float64) {
 // RegisterJobRetries total number of job retries.
 func RegisterJobRetries(jobID string) {
 	jobRetryCount.WithLabelValues(jobID).Inc()
+}
+
+func UpdateJobStatus(queue string, job string, namespace string,status string) {
+	jobStatus.WithLabelValues(job, queue, namespace, status).Set(1)
+}
+
+func ResetJobStatus(){
+	jobStatus.Reset()
 }

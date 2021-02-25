@@ -11,6 +11,7 @@ import (
 
 	"volcano.sh/volcano/pkg/apis/scheduling"
 	"volcano.sh/volcano/pkg/scheduler/api"
+	"volcano.sh/volcano/pkg/scheduler/metrics"
 )
 
 const (
@@ -48,6 +49,7 @@ func newJobUpdater(ssn *Session) *jobUpdater {
 }
 
 func (ju *jobUpdater) UpdateAll() {
+	metrics.ResetJobStatus()
 	workqueue.ParallelizeUntil(context.TODO(), jobUpdaterWorker, len(ju.jobQueue), ju.updateJob)
 }
 
@@ -99,6 +101,10 @@ func (ju *jobUpdater) updateJob(index int) {
 	ssn := ju.ssn
 
 	job.PodGroup.Status = jobStatus(ssn, job)
+	if info, ok := ssn.Queues[job.Queue]; ok {
+		metrics.UpdateJobStatus(info.Name, job.Name, job.Namespace, string(job.PodGroup.Status.Phase))
+	}
+
 	oldStatus, found := ssn.podGroupStatus[job.UID]
 	updatePG := !found || isPodGroupStatusUpdated(job.PodGroup.Status, oldStatus)
 	if _, err := ssn.cache.UpdateJobStatus(job, updatePG); err != nil {

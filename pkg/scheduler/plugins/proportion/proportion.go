@@ -122,8 +122,8 @@ func (pp *proportionPlugin) OnSessionOpen(ssn *framework.Session) {
 			attr.inqueue.Add(GetJobMinResources(job.PodGroup.Spec))
 		}
 	}
-
-	for _, queue := range ssn.Queues{
+	//reset queue metrics
+	for _, queue := range ssn.Queues {
 		if _, found := pp.queueOpts[queue.UID]; !found {
 			attr := &queueAttr{
 				queueID: queue.UID,
