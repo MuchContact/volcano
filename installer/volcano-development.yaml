@@ -125,7 +125,7 @@ spec:
       serviceAccount: volcano-scheduler
       containers:
         - name: volcano-scheduler
-          image: volcanosh/vc-scheduler:v1.1.2
+          image: registry.cn-hangzhou.aliyuncs.com/muco/vc-scheduler:v1.1.2.1
           args:
             - --logtostderr
             - --scheduler-conf=/volcano.scheduler/volcano-scheduler.conf

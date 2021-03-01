@@ -38,12 +38,12 @@ var (
 		}, []string{"job_id"},
 	)
 
-	jobStatus = promauto.NewGaugeVec(
+	jobStatusSummary = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Subsystem: VolcanoNamespace,
 			Name:      "job_status",
 			Help:      "status of job",
-		}, []string{"job_name", "queue", "job_namespace", "status"},
+		}, []string{"queue", "job_namespace", "status"},
 	)
 )
 
@@ -58,9 +58,9 @@ func RegisterJobRetries(jobID string) {
 }
 
 func UpdateJobStatus(queue string, job string, namespace string,status string) {
-	jobStatus.WithLabelValues(job, queue, namespace, status).Set(1)
+	jobStatusSummary.WithLabelValues(queue, namespace, status).Add(1)
 }
 
 func ResetJobStatus(){
-	jobStatus.Reset()
+	jobStatusSummary.Reset()
 }
